@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS project_members;
+DROP TABLE IF EXISTS role_features;
+DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS features;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS staff;
+DROP TABLE IF EXISTS staff_sessions;
+DROP TABLE IF EXISTS organizations;

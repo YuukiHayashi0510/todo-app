@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:14.6
+    environment:
+      POSTGRES_DB: project_db
+      POSTGRES_USER: project_user
+      POSTGRES_PASSWORD: project_pass
+      TZ: Asia/Tokyo
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d
+    command: postgres -c log_destination=stderr -c log_statement=all -c log_connections=on -c log_disconnections=on
+
+volumes:
+  postgres_data:
+    driver: local
