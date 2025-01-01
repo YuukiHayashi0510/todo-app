@@ -7,3 +7,8 @@ type SearchInput struct {
 	common.PaginationParams
 	SearchStatus common.SearchStatus
 }
+
+type UpdateInput struct {
+	OrganizationID   int64
+	OrganizationName string
+}

@@ -6,3 +6,11 @@ type SearchOutput struct {
 	Organizations []Organization  `json:"organizations"`
 	PageInfo      common.PageInfo `json:"page_info"`
 }
+
+type CreateOutput struct {
+	Organization Organization `json:"organization"`
+}
+
+type UpdateOutput struct {
+	Organization Organization `json:"organization"`
+}
