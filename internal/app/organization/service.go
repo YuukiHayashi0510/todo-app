@@ -114,3 +114,22 @@ func (s *Service) Delete(ctx context.Context, id int64) error {
 
 	return nil
 }
+
+func (s *Service) Restore(ctx context.Context, id int64) error {
+	// 存在確認
+	org, err := s.repository.FindByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrOrganizationNotFound
+		}
+		return err
+	}
+
+	// 削除
+	err = s.repository.Restore(ctx, org.OrganizationID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

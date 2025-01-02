@@ -13,4 +13,5 @@ type Repository interface {
 	Create(ctx context.Context, name string) (*rdb.Organization, error)
 	Update(ctx context.Context, input *UpdateInput) error
 	Delete(ctx context.Context, id int64) error
+	Restore(ctx context.Context, id int64) error
 }
