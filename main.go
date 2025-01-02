@@ -54,7 +54,9 @@ func run(addr string) (runErr error) {
 	gin.DisableConsoleColor()
 	r := gin.New()
 
-	web.Routing(r.Group(""))
+	// ルーティング
+	router := web.NewRouter(web.Handlers{})
+	router.Routing(r.Group(""))
 
 	if err := server.Run(r, addr); err != nil {
 		return fmt.Errorf("failed to run server: %w", err)
