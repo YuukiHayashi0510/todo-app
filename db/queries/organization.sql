@@ -41,8 +41,7 @@ SELECT
 FROM 
       organizations
 WHERE 
-      organization_id = @organization_id::bigint 
-      AND deleted_at IS NULL;
+      organization_id = @organization_id::bigint;
 
 -- name: CountSearchOrganizations :one
 -- 検索結果の総件数を取得
@@ -74,6 +73,7 @@ WHERE
 -- 組織を論理削除する
 UPDATE organizations
 SET 
+      updated_at = CURRENT_TIMESTAMP,
       deleted_at = CURRENT_TIMESTAMP
 WHERE 
       organization_id = @organization_id::bigint 

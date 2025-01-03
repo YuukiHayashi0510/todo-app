@@ -54,7 +54,13 @@ func bindRequest[T any](req *T, c *gin.Context) error {
 	switch c.Request.Method {
 	case http.MethodGet:
 		return c.ShouldBindQuery(req)
-	case http.MethodPost, http.MethodPut, http.MethodPatch:
+	case http.MethodPost:
+		// 論理削除データの復元など、JSONが不要な場合があるため
+		if c.Request.ContentLength == 0 {
+			return nil
+		}
+		return c.ShouldBindJSON(req)
+	case http.MethodPut, http.MethodPatch:
 		return c.ShouldBindJSON(req)
 	}
 

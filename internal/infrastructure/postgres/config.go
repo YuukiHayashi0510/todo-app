@@ -12,6 +12,7 @@ type OpenConfig struct {
 	User     string
 	Password string
 	SslMode  string
+	Trace    bool
 }
 
 func (cfg OpenConfig) FormatDSN() string {

@@ -106,7 +106,10 @@ func (h *OrganizationHandler) Delete(c *gin.Context) {
 	service := organization.NewService(h.repository)
 	err := service.Delete(c, pathParams.ID)
 	if err != nil {
-		if errors.Is(err, organization.ErrOrganizationNotFound) {
+		if errors.Is(err, organization.ErrOrganizationHasAlreadyDeleted) {
+			c.Set(middleware.ResponseContextKey, response.NewBadRequestError(err))
+			return
+		} else if errors.Is(err, organization.ErrOrganizationNotFound) {
 			c.Set(middleware.ResponseContextKey, response.NewNotFoundError(err))
 			return
 		}
@@ -116,6 +119,9 @@ func (h *OrganizationHandler) Delete(c *gin.Context) {
 
 	c.Set(middleware.ResponseContextKey, &response.Response{
 		HttpStatus: http.StatusOK,
+		Data: gin.H{
+			"message": "deleted successfully",
+		},
 	})
 }
 
@@ -129,7 +135,10 @@ func (h *OrganizationHandler) Restore(c *gin.Context) {
 	service := organization.NewService(h.repository)
 	err := service.Restore(c, pathParams.ID)
 	if err != nil {
-		if errors.Is(err, organization.ErrOrganizationNotFound) {
+		if errors.Is(err, organization.ErrOrganizationIsNotDeleted) {
+			c.Set(middleware.ResponseContextKey, response.NewBadRequestError(err))
+			return
+		} else if errors.Is(err, organization.ErrOrganizationNotFound) {
 			c.Set(middleware.ResponseContextKey, response.NewNotFoundError(err))
 			return
 		}
@@ -139,5 +148,8 @@ func (h *OrganizationHandler) Restore(c *gin.Context) {
 
 	c.Set(middleware.ResponseContextKey, &response.Response{
 		HttpStatus: http.StatusOK,
+		Data: gin.H{
+			"message": "restored successfully",
+		},
 	})
 }

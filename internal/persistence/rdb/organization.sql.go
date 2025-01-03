@@ -82,8 +82,7 @@ SELECT
 FROM 
       organizations
 WHERE 
-      organization_id = $1::bigint 
-      AND deleted_at IS NULL
+      organization_id = $1::bigint
 `
 
 // IDで組織を取得する
@@ -187,6 +186,7 @@ func (q *Queries) SearchOrganizations(ctx context.Context, arg SearchOrganizatio
 const softDeleteOrganization = `-- name: SoftDeleteOrganization :exec
 UPDATE organizations
 SET 
+      updated_at = CURRENT_TIMESTAMP,
       deleted_at = CURRENT_TIMESTAMP
 WHERE 
       organization_id = $1::bigint 

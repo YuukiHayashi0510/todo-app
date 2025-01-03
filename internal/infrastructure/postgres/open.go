@@ -3,9 +3,12 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"log"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/tracelog"
 )
 
 const (
@@ -23,7 +26,21 @@ func Open(cfg Config) (*DB, error) {
 	config.MinConns = int32(cfg.MaxIdleConns)
 	config.MaxConnLifetime = cfg.ConnMaxLifetime
 	config.MaxConnIdleTime = cfg.ConnMaxIdleTime
+
 	config.ConnConfig.ConnectTimeout = defaultConnectTimeout
+	if cfg.Trace {
+		config.ConnConfig.Tracer = &tracelog.TraceLog{
+			Logger: tracelog.LoggerFunc(func(ctx context.Context, level tracelog.LogLevel, msg string, data map[string]interface{}) {
+				if sql, ok := data["sql"].(string); ok {
+					if duration, ok := data["time"].(time.Duration); ok {
+						sql = strings.Join(strings.Fields(sql), " ")
+						log.Printf("SQL: %s [%.2fms]", sql, float64(duration.Microseconds())/1000)
+					}
+				}
+			}),
+			LogLevel: tracelog.LogLevelDebug,
+		}
+	}
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {

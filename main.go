@@ -33,6 +33,7 @@ func run(addr string) (runErr error) {
 			User:     config.AppConfig.Database.User,
 			Password: config.AppConfig.Database.Password,
 			SslMode:  config.AppConfig.Database.SslMode,
+			Trace:    config.AppConfig.Database.Trace,
 		},
 		ConnectionConfig: postgres.ConnectionConfig{
 			MaxIdleConns:    config.AppConfig.Database.MaxIdleConnections,
@@ -49,6 +50,7 @@ func run(addr string) (runErr error) {
 
 	// Ginのインスタンス初期化
 	gin.DisableConsoleColor()
+	gin.SetMode(config.AppConfig.Server.Mode)
 	r := gin.New()
 
 	// ルーティング

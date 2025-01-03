@@ -58,7 +58,7 @@ func RequestLogger(lgr *slog.Logger) gin.HandlerFunc {
 			requestLogger.Info("request complete client_error")
 		// 5xx
 		case res.HttpStatus >= http.StatusInternalServerError:
-			requestLogger.Error("request complete server_error", slog.Any("error", res.Data))
+			requestLogger.Error("request complete server_error", slog.String("error", res.Data.(response.ServerError).Parent.Error()))
 		}
 	}
 }

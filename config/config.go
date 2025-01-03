@@ -28,7 +28,8 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port int `yaml:"port"`
+	Mode string `yaml:"mode"`
+	Port int    `yaml:"port"`
 }
 
 type DatabaseConfig struct {
@@ -45,6 +46,8 @@ type DatabaseConfig struct {
 	MaxIdleConnections int           `yaml:"max_idle_connections"`
 	ConnMaxLifetime    time.Duration `yaml:"conn_max_lifetime"`
 	ConnMaxIdleTime    time.Duration `yaml:"conn_max_idle_time"`
+
+	Trace bool `yaml:"trace"`
 }
 
 type SecretConfig struct {

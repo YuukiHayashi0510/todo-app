@@ -88,5 +88,5 @@ func (or OrganizationRepository) Delete(ctx context.Context, id int64) error {
 func (or OrganizationRepository) Restore(ctx context.Context, id int64) error {
 	queries := rdb.New(or.db)
 
-	return queries.SoftDeleteOrganization(ctx, id)
+	return queries.RestoreOrganization(ctx, id)
 }

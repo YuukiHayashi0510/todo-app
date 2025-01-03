@@ -106,6 +106,11 @@ func (s *Service) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 
+	// 既に削除されている場合
+	if org.DeletedAt != nil {
+		return ErrOrganizationHasAlreadyDeleted
+	}
+
 	// 削除
 	err = s.repository.Delete(ctx, org.OrganizationID)
 	if err != nil {
@@ -123,6 +128,11 @@ func (s *Service) Restore(ctx context.Context, id int64) error {
 			return ErrOrganizationNotFound
 		}
 		return err
+	}
+
+	// 削除されていない場合
+	if org.DeletedAt == nil {
+		return ErrOrganizationIsNotDeleted
 	}
 
 	// 削除

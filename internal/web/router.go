@@ -39,5 +39,7 @@ func (r *Router) routingOrgs(group *gin.RouterGroup) {
 	idGroup := group.Group("/:id")
 	{
 		idGroup.PUT("", r.Handlers.Organizations.Update)
+		idGroup.POST("/restore", r.Handlers.Organizations.Restore)
+		idGroup.DELETE("", r.Handlers.Organizations.Delete)
 	}
 }
