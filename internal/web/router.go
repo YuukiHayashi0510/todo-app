@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/YuukiHayashi0510/todo-app/internal/web/form"
 	"github.com/YuukiHayashi0510/todo-app/internal/web/middleware"
+	"github.com/YuukiHayashi0510/todo-app/internal/web/request"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,7 +31,7 @@ func (r *Router) Routing(group *gin.RouterGroup) {
 // TODO: ハンドラの設定
 func (r *Router) routingOrgs(group *gin.RouterGroup) {
 	group = group.Group("/organizations")
-	group.Use(middleware.Validate[form.OrganizationForm]())
+	group.Use(middleware.Validate[request.OrganizationRequest]())
 
 	group.GET("", r.Handlers.Organizations.List)
 }

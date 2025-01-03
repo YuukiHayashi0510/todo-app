@@ -9,6 +9,7 @@ import (
 	"github.com/YuukiHayashi0510/todo-app/internal/logger"
 	"github.com/YuukiHayashi0510/todo-app/internal/server"
 	"github.com/YuukiHayashi0510/todo-app/internal/web"
+	"github.com/YuukiHayashi0510/todo-app/internal/web/handler"
 	"github.com/gin-gonic/gin"
 )
 
@@ -55,7 +56,11 @@ func run(addr string) (runErr error) {
 	r := gin.New()
 
 	// ルーティング
-	router := web.NewRouter(web.Handlers{})
+	router := web.NewRouter(
+		web.Handlers{
+			Organizations: handler.NewOrganizationHandler(db),
+		},
+	)
 	router.Routing(r.Group(""))
 
 	if err := server.Run(r, addr); err != nil {
