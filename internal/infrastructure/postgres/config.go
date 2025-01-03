@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -11,6 +12,13 @@ type OpenConfig struct {
 	User     string
 	Password string
 	SslMode  string
+}
+
+func (cfg OpenConfig) FormatDSN() string {
+	return fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SslMode,
+	)
 }
 
 type ConnectionConfig struct {
