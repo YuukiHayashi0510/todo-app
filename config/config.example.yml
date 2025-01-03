@@ -1,0 +1,25 @@
+server:
+  mode: "debug" # debug, release
+  port: 8080
+
+database:
+  host: "localhost"
+  port: 5432
+  db_name: "project_db"
+  user: "project_user"
+  password: "project_pass"
+  ssl_mode: "disable"
+
+  secret:
+    region: ""
+    secret_id: ""
+
+  # コネクションプール
+  max_open_connections: 25
+  max_idle_connections: 5
+  conn_max_lifetime: "1h"
+  conn_max_idle_time: "5m"
+
+logging:
+  level: "info" # debug, info, warn, error
+  format: "json" # json, text

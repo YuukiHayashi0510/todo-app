@@ -91,7 +91,53 @@ func (h *OrganizationHandler) Update(c *gin.Context) {
 	}
 
 	c.Set(middleware.ResponseContextKey, &response.Response{
-		HttpStatus: http.StatusCreated,
+		HttpStatus: http.StatusOK,
 		Data:       res,
+	})
+}
+
+func (h *OrganizationHandler) Delete(c *gin.Context) {
+	var pathParams request.PathParams
+	if err := c.ShouldBindUri(&pathParams); err != nil {
+		c.Set(middleware.ResponseContextKey, response.NewBadRequestError(err))
+		return
+	}
+
+	service := organization.NewService(h.repository)
+	err := service.Delete(c, pathParams.ID)
+	if err != nil {
+		if errors.Is(err, organization.ErrOrganizationNotFound) {
+			c.Set(middleware.ResponseContextKey, response.NewNotFoundError(err))
+			return
+		}
+		c.Set(middleware.ResponseContextKey, response.NewInternalServerError(err))
+		return
+	}
+
+	c.Set(middleware.ResponseContextKey, &response.Response{
+		HttpStatus: http.StatusOK,
+	})
+}
+
+func (h *OrganizationHandler) Restore(c *gin.Context) {
+	var pathParams request.PathParams
+	if err := c.ShouldBindUri(&pathParams); err != nil {
+		c.Set(middleware.ResponseContextKey, response.NewBadRequestError(err))
+		return
+	}
+
+	service := organization.NewService(h.repository)
+	err := service.Restore(c, pathParams.ID)
+	if err != nil {
+		if errors.Is(err, organization.ErrOrganizationNotFound) {
+			c.Set(middleware.ResponseContextKey, response.NewNotFoundError(err))
+			return
+		}
+		c.Set(middleware.ResponseContextKey, response.NewInternalServerError(err))
+		return
+	}
+
+	c.Set(middleware.ResponseContextKey, &response.Response{
+		HttpStatus: http.StatusOK,
 	})
 }
