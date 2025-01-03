@@ -7,7 +7,8 @@ package rdb
 
 import (
 	"context"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countSearchOrganizations = `-- name: CountSearchOrganizations :one
@@ -30,13 +31,13 @@ type CountSearchOrganizationsParams struct {
 	SearchStatus     string
 	OrganizationID   int64
 	OrganizationName string
-	CreatedAtStart   time.Time
-	CreatedAtEnd     time.Time
+	CreatedAtStart   pgtype.Timestamp
+	CreatedAtEnd     pgtype.Timestamp
 }
 
 // 検索結果の総件数を取得
 func (q *Queries) CountSearchOrganizations(ctx context.Context, arg CountSearchOrganizationsParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countSearchOrganizations,
+	row := q.db.QueryRow(ctx, countSearchOrganizations,
 		arg.SearchStatus,
 		arg.OrganizationID,
 		arg.OrganizationName,
@@ -59,7 +60,7 @@ RETURNING organization_id, organization_name, created_at, updated_at, deleted_at
 
 // 組織の新規作成
 func (q *Queries) CreateOrganization(ctx context.Context, organizationName string) (Organization, error) {
-	row := q.db.QueryRowContext(ctx, createOrganization, organizationName)
+	row := q.db.QueryRow(ctx, createOrganization, organizationName)
 	var i Organization
 	err := row.Scan(
 		&i.OrganizationID,
@@ -87,7 +88,7 @@ WHERE
 
 // IDで組織を取得する
 func (q *Queries) GetOrganizationByID(ctx context.Context, organizationID int64) (Organization, error) {
-	row := q.db.QueryRowContext(ctx, getOrganizationByID, organizationID)
+	row := q.db.QueryRow(ctx, getOrganizationByID, organizationID)
 	var i Organization
 	err := row.Scan(
 		&i.OrganizationID,
@@ -111,7 +112,7 @@ WHERE
 
 // 論理削除された組織を復元する
 func (q *Queries) RestoreOrganization(ctx context.Context, organizationID int64) error {
-	_, err := q.db.ExecContext(ctx, restoreOrganization, organizationID)
+	_, err := q.db.Exec(ctx, restoreOrganization, organizationID)
 	return err
 }
 
@@ -142,15 +143,15 @@ type SearchOrganizationsParams struct {
 	SearchStatus     string
 	OrganizationID   int64
 	OrganizationName string
-	CreatedAtStart   time.Time
-	CreatedAtEnd     time.Time
+	CreatedAtStart   pgtype.Timestamp
+	CreatedAtEnd     pgtype.Timestamp
 	Offset           int32
 	Limit            int32
 }
 
 // 組織の検索クエリ
 func (q *Queries) SearchOrganizations(ctx context.Context, arg SearchOrganizationsParams) ([]Organization, error) {
-	rows, err := q.db.QueryContext(ctx, searchOrganizations,
+	rows, err := q.db.Query(ctx, searchOrganizations,
 		arg.SearchStatus,
 		arg.OrganizationID,
 		arg.OrganizationName,
@@ -177,9 +178,6 @@ func (q *Queries) SearchOrganizations(ctx context.Context, arg SearchOrganizatio
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -197,7 +195,7 @@ WHERE
 
 // 組織を論理削除する
 func (q *Queries) SoftDeleteOrganization(ctx context.Context, organizationID int64) error {
-	_, err := q.db.ExecContext(ctx, softDeleteOrganization, organizationID)
+	_, err := q.db.Exec(ctx, softDeleteOrganization, organizationID)
 	return err
 }
 
@@ -218,6 +216,6 @@ type UpdateOrganizationParams struct {
 
 // 組織情報を更新する
 func (q *Queries) UpdateOrganization(ctx context.Context, arg UpdateOrganizationParams) error {
-	_, err := q.db.ExecContext(ctx, updateOrganization, arg.OrganizationName, arg.OrganizationID)
+	_, err := q.db.Exec(ctx, updateOrganization, arg.OrganizationName, arg.OrganizationID)
 	return err
 }

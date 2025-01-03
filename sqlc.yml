@@ -7,4 +7,17 @@ sql:
       go:
         package: "rdb"
         out: "./internal/persistence/rdb"
+        sql_package: "pgx/v5"
         emit_empty_slices: true
+        overrides:
+          # pgtype.Timestampz（sql.NullTime相当）ではなく、*time.Timeを使用する
+          - db_type: timestamptz
+            go_type:
+              import: time
+              type: Time
+          - db_type: timestamptz
+            go_type:
+              import: time
+              type: Time
+              pointer: true
+            nullable: true

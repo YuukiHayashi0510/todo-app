@@ -7,7 +7,8 @@ package rdb
 
 import (
 	"context"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countSearchStaff = `-- name: CountSearchStaff :one
@@ -32,13 +33,13 @@ type CountSearchStaffParams struct {
 	OrganizationID int64
 	Email          string
 	StaffName      string
-	CreatedAtStart time.Time
-	CreatedAtEnd   time.Time
+	CreatedAtStart pgtype.Timestamp
+	CreatedAtEnd   pgtype.Timestamp
 }
 
 // 検索結果の総件数を取得
 func (q *Queries) CountSearchStaff(ctx context.Context, arg CountSearchStaffParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countSearchStaff,
+	row := q.db.QueryRow(ctx, countSearchStaff,
 		arg.SearchStatus,
 		arg.OrganizationID,
 		arg.Email,
@@ -72,7 +73,7 @@ type CreateStaffParams struct {
 
 // スタッフの新規作成
 func (q *Queries) CreateStaff(ctx context.Context, arg CreateStaffParams) (Staff, error) {
-	row := q.db.QueryRowContext(ctx, createStaff, arg.OrganizationID, arg.Email, arg.StaffName)
+	row := q.db.QueryRow(ctx, createStaff, arg.OrganizationID, arg.Email, arg.StaffName)
 	var i Staff
 	err := row.Scan(
 		&i.StaffID,
@@ -117,15 +118,15 @@ type SearchStaffParams struct {
 	OrganizationID int64
 	Email          string
 	StaffName      string
-	CreatedAtStart time.Time
-	CreatedAtEnd   time.Time
+	CreatedAtStart pgtype.Timestamp
+	CreatedAtEnd   pgtype.Timestamp
 	Offset         int32
 	Limit          int32
 }
 
 // スタッフの検索クエリ
 func (q *Queries) SearchStaff(ctx context.Context, arg SearchStaffParams) ([]Staff, error) {
-	rows, err := q.db.QueryContext(ctx, searchStaff,
+	rows, err := q.db.Query(ctx, searchStaff,
 		arg.SearchStatus,
 		arg.OrganizationID,
 		arg.Email,
@@ -154,9 +155,6 @@ func (q *Queries) SearchStaff(ctx context.Context, arg SearchStaffParams) ([]Sta
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -45,11 +45,7 @@ func run(addr string) (runErr error) {
 		return fmt.Errorf("failed to get db: %w", err)
 	}
 	// サーバ終了時にDB接続を閉じる
-	defer func() {
-		if err := db.Close(); err != nil {
-			runErr = fmt.Errorf("failed to close DB: %w", err)
-		}
-	}()
+	defer db.Close()
 
 	// Ginのインスタンス初期化
 	gin.DisableConsoleColor()

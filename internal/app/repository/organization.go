@@ -2,17 +2,17 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/YuukiHayashi0510/todo-app/internal/app/organization"
+	"github.com/YuukiHayashi0510/todo-app/internal/infrastructure/postgres"
 	"github.com/YuukiHayashi0510/todo-app/internal/persistence/rdb"
 )
 
 type OrganizationRepository struct {
-	db *sql.DB
+	db *postgres.DB
 }
 
-func NewOrganizationRepository(db *sql.DB) *OrganizationRepository {
+func NewOrganizationRepository(db *postgres.DB) *OrganizationRepository {
 	return &OrganizationRepository{db}
 }
 

@@ -3,6 +3,7 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -40,7 +41,7 @@ func Validate[T any]() gin.HandlerFunc {
 				c.Set(ResponseContextKey, &response.Response{
 					Data: response.ServerError{
 						Parent:  err,
-						Message: "invalid JSON format",
+						Message: fmt.Sprintf("invalid JSON format: %s", err.Error()),
 					},
 				})
 			} else {

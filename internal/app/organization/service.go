@@ -34,7 +34,7 @@ func (s *Service) Search(ctx context.Context, input *SearchInput) (*SearchOutput
 			OrganizationName: v.OrganizationName,
 			CreatedAt:        v.CreatedAt,
 			UpdatedAt:        v.UpdatedAt,
-			DeletedAt:        &v.DeletedAt.Time,
+			DeletedAt:        v.DeletedAt,
 		})
 	}
 
@@ -56,7 +56,7 @@ func (s *Service) Create(ctx context.Context, name string) (*CreateOutput, error
 			OrganizationName: org.OrganizationName,
 			CreatedAt:        org.CreatedAt,
 			UpdatedAt:        org.UpdatedAt,
-			DeletedAt:        &org.DeletedAt.Time,
+			DeletedAt:        org.DeletedAt,
 		},
 	}, nil
 }
@@ -91,7 +91,7 @@ func (s *Service) Update(ctx context.Context, input *UpdateInput) (*UpdateOutput
 			OrganizationName: org.OrganizationName,
 			CreatedAt:        org.CreatedAt,
 			UpdatedAt:        org.UpdatedAt,
-			DeletedAt:        &org.DeletedAt.Time,
+			DeletedAt:        org.DeletedAt,
 		},
 	}, nil
 }

@@ -5,18 +5,19 @@
 package rdb
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Feature struct {
 	FeatureID   int64
 	FeatureName string
 	Operation   string
-	Description sql.NullString
+	Description pgtype.Text
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	DeletedAt   sql.NullTime
+	DeletedAt   *time.Time
 }
 
 type Organization struct {
@@ -24,17 +25,17 @@ type Organization struct {
 	OrganizationName string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
-	DeletedAt        sql.NullTime
+	DeletedAt        *time.Time
 }
 
 type Project struct {
 	ProjectID      int64
 	OrganizationID int64
 	ProjectName    string
-	Description    sql.NullString
+	Description    pgtype.Text
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	DeletedAt      sql.NullTime
+	DeletedAt      *time.Time
 }
 
 type ProjectMember struct {
@@ -44,7 +45,7 @@ type ProjectMember struct {
 	RoleID          int64
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
-	DeletedAt       sql.NullTime
+	DeletedAt       *time.Time
 }
 
 type Role struct {
@@ -52,7 +53,7 @@ type Role struct {
 	RoleName  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt sql.NullTime
+	DeletedAt *time.Time
 }
 
 type RoleFeature struct {
@@ -68,13 +69,13 @@ type Staff struct {
 	StaffName      string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	DeletedAt      sql.NullTime
+	DeletedAt      *time.Time
 }
 
 type StaffSession struct {
 	SessionID   int64
 	StaffID     int64
-	SessionData sql.NullString
+	SessionData pgtype.Text
 	ExpiresAt   time.Time
 	CreatedAt   time.Time
 }
@@ -83,9 +84,9 @@ type Task struct {
 	TaskID      int64
 	ProjectID   int64
 	Title       string
-	Description sql.NullString
+	Description pgtype.Text
 	Status      string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	DeletedAt   sql.NullTime
+	DeletedAt   *time.Time
 }

@@ -25,13 +25,14 @@ func (r *Router) Routing(group *gin.RouterGroup) {
 
 	group.Use(middleware.RequestLogger(slog.Default()), middleware.CreateResponse())
 
-	r.routingOrgs(group)
+	apiGroup := group.Group("/api")
+	r.routingOrgs(apiGroup)
 }
 
-// TODO: ハンドラの設定
 func (r *Router) routingOrgs(group *gin.RouterGroup) {
 	group = group.Group("/organizations")
 	group.Use(middleware.Validate[request.OrganizationRequest]())
 
 	group.GET("", r.Handlers.Organizations.List)
+	group.POST("", r.Handlers.Organizations.Create)
 }

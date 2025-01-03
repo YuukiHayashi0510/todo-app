@@ -1,26 +1,34 @@
 package postgres
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
+	"time"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
-	driverName = "postgres"
+	defaultConnectTimeout = time.Second * 5
 )
 
-func Open(cfg Config) (*sql.DB, error) {
-	db, err := sql.Open(driverName, cfg.OpenConfig.FormatDSN())
+func Open(cfg Config) (*DB, error) {
+	// pgx設定 参考: https://github.com/jackc/pgx/discussions/1989
+	config, err := pgxpool.ParseConfig(cfg.OpenConfig.FormatDSN())
+	if err != nil {
+		return nil, err
+	}
+
+	config.MaxConns = int32(cfg.MaxOpenConns)
+	config.MinConns = int32(cfg.MaxIdleConns)
+	config.MaxConnLifetime = cfg.ConnMaxLifetime
+	config.MaxConnIdleTime = cfg.ConnMaxIdleTime
+	config.ConnConfig.ConnectTimeout = defaultConnectTimeout
+
+	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %v", err)
 	}
 
-	db.SetMaxOpenConns(cfg.MaxOpenConns)
-	db.SetMaxIdleConns(cfg.MaxIdleConns)
-	db.SetConnMaxLifetime(cfg.ConnMaxLifetime)
-	db.SetConnMaxIdleTime(cfg.ConnMaxIdleTime)
-
-	return db, nil
+	return pool, nil
 }
