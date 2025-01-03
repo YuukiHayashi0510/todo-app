@@ -23,12 +23,7 @@ func Validate[T any]() gin.HandlerFunc {
 			)
 
 			if errors.Is(err, io.EOF) {
-				c.Set(ResponseContextKey, &response.Response{
-					Data: response.ServerError{
-						Parent:  err,
-						Message: "missing required params",
-					},
-				})
+				c.Set(ResponseContextKey, response.NewMissingRequiredParamsError())
 			} else if errors.As(err, &validationErrors) {
 				c.Set(ResponseContextKey, &response.Response{
 					HttpStatus: http.StatusBadRequest,
@@ -45,12 +40,7 @@ func Validate[T any]() gin.HandlerFunc {
 					},
 				})
 			} else {
-				c.Set(ResponseContextKey, &response.Response{
-					Data: response.ServerError{
-						Parent:  err,
-						Message: "server error",
-					},
-				})
+				c.Set(ResponseContextKey, response.NewInternalServerError(err))
 			}
 			c.Abort()
 		}

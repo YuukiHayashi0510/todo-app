@@ -35,4 +35,9 @@ func (r *Router) routingOrgs(group *gin.RouterGroup) {
 
 	group.GET("", r.Handlers.Organizations.List)
 	group.POST("", r.Handlers.Organizations.Create)
+
+	idGroup := group.Group("/:id")
+	{
+		idGroup.PUT("", r.Handlers.Organizations.Update)
+	}
 }

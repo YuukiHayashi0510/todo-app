@@ -16,7 +16,7 @@ type Response struct {
 	Data         interface{}
 }
 
-func NewMissingRequiredParamsErrorResponse() *Response {
+func NewMissingRequiredParamsError() *Response {
 	return &Response{
 		HttpStatus: http.StatusBadRequest,
 		Data: ServerError{
@@ -26,12 +26,32 @@ func NewMissingRequiredParamsErrorResponse() *Response {
 	}
 }
 
-func NewInternalServerErrorResponse(err error) *Response {
+func NewBadRequestError(err error) *Response {
+	return &Response{
+		HttpStatus: http.StatusBadRequest,
+		Data: ServerError{
+			Parent:  err,
+			Message: "invalid request",
+		},
+	}
+}
+
+func NewNotFoundError(err error) *Response {
+	return &Response{
+		HttpStatus: http.StatusNotFound,
+		Data: ServerError{
+			Parent:  err,
+			Message: "resource not found",
+		},
+	}
+}
+
+func NewInternalServerError(err error) *Response {
 	return &Response{
 		HttpStatus: http.StatusInternalServerError,
 		Data: ServerError{
 			Parent:  err,
-			Message: "api error",
+			Message: "server error",
 		},
 	}
 }

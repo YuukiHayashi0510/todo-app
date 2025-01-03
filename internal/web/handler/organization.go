@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/YuukiHayashi0510/todo-app/internal/app/organization"
@@ -32,7 +33,7 @@ func (h *OrganizationHandler) List(c *gin.Context) {
 		},
 	})
 	if err != nil {
-		c.Set(middleware.ResponseContextKey, response.NewInternalServerErrorResponse(err))
+		c.Set(middleware.ResponseContextKey, response.NewInternalServerError(err))
 		return
 	}
 
@@ -45,14 +46,47 @@ func (h *OrganizationHandler) List(c *gin.Context) {
 func (h *OrganizationHandler) Create(c *gin.Context) {
 	req := c.MustGet(middleware.ValidationContextKey).(*request.OrganizationRequest)
 	if empty.Is(req.OrganizationName) {
-		c.Set(middleware.ResponseContextKey, response.NewMissingRequiredParamsErrorResponse())
+		c.Set(middleware.ResponseContextKey, response.NewMissingRequiredParamsError())
 		return
 	}
 
 	service := organization.NewService(h.repository)
 	res, err := service.Create(c, req.OrganizationName)
 	if err != nil {
-		c.Set(middleware.ResponseContextKey, response.NewInternalServerErrorResponse(err))
+		c.Set(middleware.ResponseContextKey, response.NewInternalServerError(err))
+		return
+	}
+
+	c.Set(middleware.ResponseContextKey, &response.Response{
+		HttpStatus: http.StatusCreated,
+		Data:       res,
+	})
+}
+
+func (h *OrganizationHandler) Update(c *gin.Context) {
+	req := c.MustGet(middleware.ValidationContextKey).(*request.OrganizationRequest)
+	if empty.Is(req.OrganizationName) {
+		c.Set(middleware.ResponseContextKey, response.NewMissingRequiredParamsError())
+		return
+	}
+
+	var pathParams request.PathParams
+	if err := c.ShouldBindUri(&pathParams); err != nil {
+		c.Set(middleware.ResponseContextKey, response.NewBadRequestError(err))
+		return
+	}
+
+	service := organization.NewService(h.repository)
+	res, err := service.Update(c, &organization.UpdateInput{
+		OrganizationID:   pathParams.ID,
+		OrganizationName: req.OrganizationName,
+	})
+	if err != nil {
+		if errors.Is(err, organization.ErrOrganizationNotFound) {
+			c.Set(middleware.ResponseContextKey, response.NewNotFoundError(err))
+			return
+		}
+		c.Set(middleware.ResponseContextKey, response.NewInternalServerError(err))
 		return
 	}
 
