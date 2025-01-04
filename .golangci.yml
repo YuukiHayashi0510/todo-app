@@ -1,5 +1,5 @@
 issues:
-  exclude-dirs:
-    - config # configのgo embedをスキップするため
+  exclude:
+    - "pattern config.yml: no matching files found" # configのgo embedをスキップするため
 run:
   timeout: 5m # デフォルトで1分程度でタイムアウトしてしまうため
