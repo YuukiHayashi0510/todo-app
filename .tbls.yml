@@ -1,0 +1,5 @@
+# DSN (Database Source Name) to connect database
+dsn: postgres://project_user:project_pass@localhost:5432/project_db?sslmode=disable
+# Path to generate document
+# Default is `dbdoc`
+docPath: db/docs
