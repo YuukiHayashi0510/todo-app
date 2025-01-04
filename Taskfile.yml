@@ -36,6 +36,11 @@ tasks:
     cmds:
       - sqlc generate
 
+  tbls-gen:
+    desc: tblsのドキュメント生成
+    cmds:
+      - tbls doc --rm-dist
+
   dev:
     desc: 開発サーバの起動
     deps: [generate]

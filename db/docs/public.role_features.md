@@ -4,22 +4,22 @@
 
 ## Columns
 
-| Name | Type | Default | Nullable | Children | Parents | Comment |
-| ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| role_id | bigint |  | false |  |  |  |
-| feature_id | bigint |  | false |  |  |  |
-| created_at | timestamp with time zone | CURRENT_TIMESTAMP | false |  |  |  |
+| Name       | Type                     | Default           | Nullable | Children | Parents | Comment |
+| ---------- | ------------------------ | ----------------- | -------- | -------- | ------- | ------- |
+| role_id    | bigint                   |                   | false    |          |         |         |
+| feature_id | bigint                   |                   | false    |          |         |         |
+| created_at | timestamp with time zone | CURRENT_TIMESTAMP | false    |          |         |         |
 
 ## Constraints
 
-| Name | Type | Definition |
-| ---- | ---- | ---------- |
+| Name               | Type        | Definition                        |
+| ------------------ | ----------- | --------------------------------- |
 | role_features_pkey | PRIMARY KEY | PRIMARY KEY (role_id, feature_id) |
 
 ## Indexes
 
-| Name | Definition |
-| ---- | ---------- |
+| Name               | Definition                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------ |
 | role_features_pkey | CREATE UNIQUE INDEX role_features_pkey ON public.role_features USING btree (role_id, feature_id) |
 
 ## Relations

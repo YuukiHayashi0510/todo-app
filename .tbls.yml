@@ -3,3 +3,23 @@ dsn: postgres://project_user:project_pass@localhost:5432/project_db?sslmode=disa
 # Path to generate document
 # Default is `dbdoc`
 docPath: db/docs
+
+er:
+  hideDef: true
+
+format:
+  adjust: true
+
+relations:
+  - table: staffs
+    columns:
+      - organization_id
+    parentTable: organizations
+    parentColumns:
+      - organization_id
+  - table: staff_sessions
+    columns:
+      - staff_id
+    parentTable: staffs
+    parentColumns:
+      - staff_id
