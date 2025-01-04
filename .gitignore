@@ -1,5 +1,8 @@
-# アプリの設定値
-**/config.yml
-
 # tmp
 **/tmp
+
+# .DS_Store
+**/.DS_Store
+
+# アプリの設定値
+**/config.yml
