@@ -27,6 +27,7 @@ func (r *Router) Routing(group *gin.RouterGroup) {
 
 	apiGroup := group.Group("/api")
 	r.routingOrgs(apiGroup)
+	r.routingStaffs(apiGroup)
 }
 
 func (r *Router) routingOrgs(group *gin.RouterGroup) {
@@ -41,5 +42,20 @@ func (r *Router) routingOrgs(group *gin.RouterGroup) {
 		idGroup.PUT("", r.Handlers.Organizations.Update)
 		idGroup.POST("/restore", r.Handlers.Organizations.Restore)
 		idGroup.DELETE("", r.Handlers.Organizations.Delete)
+	}
+}
+
+func (r *Router) routingStaffs(group *gin.RouterGroup) {
+	group = group.Group("/staffs")
+	group.Use(middleware.Validate[request.StaffRequest]())
+
+	group.GET("", r.Handlers.Staffs.List)
+	group.POST("", r.Handlers.Staffs.Create)
+
+	idGroup := group.Group("/:id")
+	{
+		idGroup.PUT("", r.Handlers.Staffs.Update)
+		idGroup.POST("/restore", r.Handlers.Staffs.Restore)
+		idGroup.DELETE("", r.Handlers.Staffs.Delete)
 	}
 }
