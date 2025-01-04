@@ -1,4 +1,0 @@
-linters-settings:
-  govet:
-    checks:
-      - -embedchecker # embedのチェックを無効化
