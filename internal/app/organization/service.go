@@ -2,10 +2,10 @@ package organization
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
 	"github.com/YuukiHayashi0510/todo-app/internal/app/common"
+	"github.com/jackc/pgx/v5"
 )
 
 type Service struct {
@@ -65,7 +65,7 @@ func (s *Service) Update(ctx context.Context, input *UpdateInput) (*UpdateOutput
 	// 存在確認
 	_, err := s.repository.FindByID(ctx, input.OrganizationID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrOrganizationNotFound
 		}
 		return nil, err
@@ -79,7 +79,7 @@ func (s *Service) Update(ctx context.Context, input *UpdateInput) (*UpdateOutput
 	// 更新後の値の再取得
 	org, err := s.repository.FindByID(ctx, input.OrganizationID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrOrganizationNotFound
 		}
 		return nil, err
@@ -100,7 +100,7 @@ func (s *Service) Delete(ctx context.Context, id int64) error {
 	// 存在確認
 	org, err := s.repository.FindByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return ErrOrganizationNotFound
 		}
 		return err
@@ -124,7 +124,7 @@ func (s *Service) Restore(ctx context.Context, id int64) error {
 	// 存在確認
 	org, err := s.repository.FindByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return ErrOrganizationNotFound
 		}
 		return err

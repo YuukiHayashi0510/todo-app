@@ -7,14 +7,15 @@ package rdb
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const countSearchStaff = `-- name: CountSearchStaff :one
+const countSearchStaffs = `-- name: CountSearchStaffs :one
 SELECT 
     COUNT(*) as total_count
-FROM staff
+FROM staffs
 WHERE
     CASE 
         WHEN $1::text = 'all' THEN true
@@ -28,7 +29,7 @@ WHERE
     AND ($6::timestamp IS NULL OR created_at <= $6::timestamp)
 `
 
-type CountSearchStaffParams struct {
+type CountSearchStaffsParams struct {
 	SearchStatus   string
 	OrganizationID int64
 	Email          string
@@ -38,8 +39,8 @@ type CountSearchStaffParams struct {
 }
 
 // 検索結果の総件数を取得
-func (q *Queries) CountSearchStaff(ctx context.Context, arg CountSearchStaffParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countSearchStaff,
+func (q *Queries) CountSearchStaffs(ctx context.Context, arg CountSearchStaffsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countSearchStaffs,
 		arg.SearchStatus,
 		arg.OrganizationID,
 		arg.Email,
@@ -53,14 +54,14 @@ func (q *Queries) CountSearchStaff(ctx context.Context, arg CountSearchStaffPara
 }
 
 const createStaff = `-- name: CreateStaff :one
-INSERT INTO staff (
+INSERT INTO staffs (
     organization_id,
     email,
     staff_name
 ) VALUES (
-    $1::bigint,
-    $2::text,
-    $3::text
+    $1,
+    $2,
+    $3
 )
 RETURNING staff_id, organization_id, email, staff_name, created_at, updated_at, deleted_at
 `
@@ -87,33 +88,86 @@ func (q *Queries) CreateStaff(ctx context.Context, arg CreateStaffParams) (Staff
 	return i, err
 }
 
-const searchStaff = `-- name: SearchStaff :many
+const getStaffByID = `-- name: GetStaffByID :one
 SELECT 
-    staff_id,
-    organization_id,
-    email,
-    staff_name,
-    created_at,
-    updated_at,
-    deleted_at
-FROM staff
+    s.staff_id, s.organization_id, s.email, s.staff_name, s.created_at, s.updated_at, s.deleted_at,
+    o.organization, o.organization, o.organization, o.organization, o.organization as "organization"
+FROM staffs s
+JOIN organizations o ON s.organization_id = o.organization_id
+WHERE s.staff_id = $1 AND s.deleted_at IS NULL
+LIMIT 1
+`
+
+type GetStaffByIDRow struct {
+	StaffID        int64
+	OrganizationID int64
+	Email          string
+	StaffName      string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      *time.Time
+	Organization   Organization
+}
+
+// IDでスタッフを取得する
+func (q *Queries) GetStaffByID(ctx context.Context, staffID int64) (GetStaffByIDRow, error) {
+	row := q.db.QueryRow(ctx, getStaffByID, staffID)
+	var i GetStaffByIDRow
+	err := row.Scan(
+		&i.StaffID,
+		&i.OrganizationID,
+		&i.Email,
+		&i.StaffName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Organization.OrganizationID,
+		&i.Organization.OrganizationName,
+		&i.Organization.CreatedAt,
+		&i.Organization.UpdatedAt,
+		&i.Organization.DeletedAt,
+	)
+	return i, err
+}
+
+const restoreStaff = `-- name: RestoreStaff :exec
+UPDATE staffs
+SET 
+    deleted_at = NULL,
+    updated_at = CURRENT_TIMESTAMP
+WHERE 
+    staff_id = $1
+    AND deleted_at IS NOT NULL
+`
+
+func (q *Queries) RestoreStaff(ctx context.Context, staffID int64) error {
+	_, err := q.db.Exec(ctx, restoreStaff, staffID)
+	return err
+}
+
+const searchStaffs = `-- name: SearchStaffs :many
+SELECT 
+   s.staff_id, s.organization_id, s.email, s.staff_name, s.created_at, s.updated_at, s.deleted_at,
+   organizations.organization_id, organizations.organization_name, organizations.created_at, organizations.updated_at, organizations.deleted_at
+FROM staffs s
+LEFT JOIN organizations ON s.organization_id = organizations.organization_id
 WHERE
-    CASE 
-        WHEN $1::text = 'all' THEN true
-        WHEN $1::text = 'active' THEN deleted_at IS NULL
-        WHEN $1::text = 'in_active' THEN deleted_at IS NOT NULL
-    END
-    AND ($2::bigint = 0 OR organization_id = $2::bigint)
-    AND ($3::text = '' OR email LIKE '%' || $3::text || '%')
-    AND ($4::text = '' OR staff_name LIKE '%' || $4::text || '%')
-    AND ($5::timestamp IS NULL OR created_at >= $5::timestamp)
-    AND ($6::timestamp IS NULL OR created_at <= $6::timestamp)
-ORDER BY staff_id DESC
+   CASE 
+       WHEN $1::text = 'all' THEN true
+       WHEN $1::text = 'active' THEN s.deleted_at IS NULL
+       WHEN $1::text = 'in_active' THEN s.deleted_at IS NOT NULL
+   END
+   AND ($2::bigint = 0 OR s.organization_id = $2::bigint)
+   AND ($3::text = '' OR s.email LIKE '%' || $3::text || '%')
+   AND ($4::text = '' OR s.staff_name LIKE '%' || $4::text || '%')
+   AND ($5::timestamp IS NULL OR s.created_at >= $5::timestamp)
+   AND ($6::timestamp IS NULL OR s.created_at <= $6::timestamp)
+ORDER BY s.staff_id DESC
 LIMIT CAST($8 AS INTEGER)
 OFFSET CAST($7 AS INTEGER)
 `
 
-type SearchStaffParams struct {
+type SearchStaffsParams struct {
 	SearchStatus   string
 	OrganizationID int64
 	Email          string
@@ -124,9 +178,20 @@ type SearchStaffParams struct {
 	Limit          int32
 }
 
+type SearchStaffsRow struct {
+	StaffID        int64
+	OrganizationID int64
+	Email          string
+	StaffName      string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      *time.Time
+	Organization   Organization
+}
+
 // スタッフの検索クエリ
-func (q *Queries) SearchStaff(ctx context.Context, arg SearchStaffParams) ([]Staff, error) {
-	rows, err := q.db.Query(ctx, searchStaff,
+func (q *Queries) SearchStaffs(ctx context.Context, arg SearchStaffsParams) ([]SearchStaffsRow, error) {
+	rows, err := q.db.Query(ctx, searchStaffs,
 		arg.SearchStatus,
 		arg.OrganizationID,
 		arg.Email,
@@ -140,9 +205,9 @@ func (q *Queries) SearchStaff(ctx context.Context, arg SearchStaffParams) ([]Sta
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Staff{}
+	items := []SearchStaffsRow{}
 	for rows.Next() {
-		var i Staff
+		var i SearchStaffsRow
 		if err := rows.Scan(
 			&i.StaffID,
 			&i.OrganizationID,
@@ -151,6 +216,11 @@ func (q *Queries) SearchStaff(ctx context.Context, arg SearchStaffParams) ([]Sta
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Organization.OrganizationID,
+			&i.Organization.OrganizationName,
+			&i.Organization.CreatedAt,
+			&i.Organization.UpdatedAt,
+			&i.Organization.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -160,4 +230,48 @@ func (q *Queries) SearchStaff(ctx context.Context, arg SearchStaffParams) ([]Sta
 		return nil, err
 	}
 	return items, nil
+}
+
+const softDeleteStaff = `-- name: SoftDeleteStaff :exec
+UPDATE staffs
+SET 
+    deleted_at = CURRENT_TIMESTAMP,
+    updated_at = CURRENT_TIMESTAMP
+WHERE 
+    staff_id = $1
+    AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteStaff(ctx context.Context, staffID int64) error {
+	_, err := q.db.Exec(ctx, softDeleteStaff, staffID)
+	return err
+}
+
+const updateStaff = `-- name: UpdateStaff :exec
+UPDATE staffs
+SET 
+    email = $1,
+    staff_name = $2,
+    organization_id = $3,
+    updated_at = CURRENT_TIMESTAMP
+WHERE 
+    staff_id = $4
+    AND deleted_at IS NULL
+`
+
+type UpdateStaffParams struct {
+	Email          string
+	StaffName      string
+	OrganizationID int64
+	StaffID        int64
+}
+
+func (q *Queries) UpdateStaff(ctx context.Context, arg UpdateStaffParams) error {
+	_, err := q.db.Exec(ctx, updateStaff,
+		arg.Email,
+		arg.StaffName,
+		arg.OrganizationID,
+		arg.StaffID,
+	)
+	return err
 }

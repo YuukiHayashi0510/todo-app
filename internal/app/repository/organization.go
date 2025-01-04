@@ -28,7 +28,7 @@ func (or *OrganizationRepository) Count(ctx context.Context, input *organization
 	return queries.CountSearchOrganizations(ctx, params)
 }
 
-func (or OrganizationRepository) FindByID(ctx context.Context, id int64) (*rdb.Organization, error) {
+func (or *OrganizationRepository) FindByID(ctx context.Context, id int64) (*rdb.Organization, error) {
 	queries := rdb.New(or.db)
 
 	org, err := queries.GetOrganizationByID(ctx, id)
@@ -79,13 +79,13 @@ func (or *OrganizationRepository) Update(ctx context.Context, input *organizatio
 	})
 }
 
-func (or OrganizationRepository) Delete(ctx context.Context, id int64) error {
+func (or *OrganizationRepository) Delete(ctx context.Context, id int64) error {
 	queries := rdb.New(or.db)
 
 	return queries.SoftDeleteOrganization(ctx, id)
 }
 
-func (or OrganizationRepository) Restore(ctx context.Context, id int64) error {
+func (or *OrganizationRepository) Restore(ctx context.Context, id int64) error {
 	queries := rdb.New(or.db)
 
 	return queries.RestoreOrganization(ctx, id)

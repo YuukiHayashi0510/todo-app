@@ -8,7 +8,7 @@ CREATE TABLE organizations (
 );
 
 -- スタッフテーブル
-CREATE TABLE staff (
+CREATE TABLE staffs (
    staff_id BIGSERIAL PRIMARY KEY,
    organization_id BIGINT NOT NULL,
    email VARCHAR(255) NOT NULL,
