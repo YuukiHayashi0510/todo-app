@@ -8,22 +8,39 @@ WEB フレームワークには gin、 ORM には試験的に sqlc を採用し�
 
 ## Develop
 
-Docker DB の起動
+### Taskfile 実行コマンドのインストール
 
 ```sh
-docker compose up -d
+brew install go-task/tap/go-task
+# or
+go install github.com/go-task/task/v3/cmd/task@latest
 ```
 
-WEB サーバの起動
+- [参考](https://taskfile.dev/installation)
+
+### 必要なツールのインストール
 
 ```sh
-air
+task install-tools
 ```
 
-sqlc の反映
+### サーバ起動
 
 ```sh
-sqlc generate
+task dev
+```
+
+### マイグレーション
+
+```sh
+# マイグレーションファイルの作成
+task migrate-create
+
+# 実行
+task migrate-up
+
+# ロールバック
+task migrate-down
 ```
 
 ### Docs

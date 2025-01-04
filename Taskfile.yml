@@ -1,0 +1,42 @@
+version: "3"
+
+vars:
+  DB_URL: postgres://project_user:project_pass@localhost:5432/project_db?sslmode=disable
+
+tasks:
+  install-tools:
+    desc: 必要なツールのインストール
+    cmds:
+      - go install github.com/air-verse/air@latest
+      - go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+      - go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+  migrate-create:
+    desc: マイグレーションファイルの新規作成
+    cmds:
+      - go run tools/migrate/main.go -name {{.CLI_ARGS}}
+    requires:
+      vars:
+        - go
+
+  migrate-up:
+    desc: マイグレーションの実行
+    cmds:
+      - migrate -database "{{.DB_URL}}" -path db/migrations up
+
+  migrate-down:
+    desc: マイグレーションの巻き戻し
+    cmds:
+      - migrate -database "{{.DB_URL}}" -path db/migrations down 1
+
+  generate:
+    desc: SQLCによるコード生成
+    cmds:
+      - sqlc generate
+
+  dev:
+    desc: 開発サーバの起動
+    deps: [generate]
+    cmds:
+      - docker compose up -d
+      - air
