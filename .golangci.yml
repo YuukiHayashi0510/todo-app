@@ -1,4 +1,5 @@
-run:
-  skip-dirs:
+issues:
+  exclude-dirs:
     - config # configのgo embedをスキップするため
+run:
   timeout: 5m # デフォルトで1分程度でタイムアウトしてしまうため
