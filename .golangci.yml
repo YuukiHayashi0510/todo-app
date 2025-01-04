@@ -1,3 +1,8 @@
+linters-settings:
+  typecheck:
+    exclude:
+      - "config/config.go" # configのgo embedをスキップするため
+
 issues:
   exclude-files:
     - config/config.go # configのgo embedをスキップするため
