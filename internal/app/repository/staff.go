@@ -39,6 +39,8 @@ func (r StaffRepository) FindByID(ctx context.Context, id int64) (*ServiceStaff,
 		return nil, err
 	}
 
+	org := value.Organization
+
 	staff := staff.New(
 		value.StaffID,
 		value.OrganizationID,
@@ -47,7 +49,13 @@ func (r StaffRepository) FindByID(ctx context.Context, id int64) (*ServiceStaff,
 		value.CreatedAt,
 		value.UpdatedAt,
 		value.DeletedAt,
-		organization.Organization(value.Organization),
+		*organization.New(
+			org.OrganizationID,
+			org.OrganizationName,
+			org.CreatedAt,
+			org.UpdatedAt,
+			org.DeletedAt,
+		),
 	)
 
 	return staff, nil
@@ -76,6 +84,7 @@ func (r *StaffRepository) Search(ctx context.Context, input *staff.SearchInput) 
 
 	retStaffs := make([]ServiceStaff, 0, len(staffs))
 	for _, v := range staffs {
+		org := v.Organization
 		retStaffs = append(retStaffs, *staff.New(
 			v.StaffID,
 			v.OrganizationID,
@@ -84,7 +93,13 @@ func (r *StaffRepository) Search(ctx context.Context, input *staff.SearchInput) 
 			v.CreatedAt,
 			v.UpdatedAt,
 			v.DeletedAt,
-			organization.Organization(v.Organization),
+			*organization.New(
+				org.OrganizationID,
+				org.OrganizationName,
+				org.CreatedAt,
+				org.UpdatedAt,
+				org.DeletedAt,
+			),
 		))
 	}
 

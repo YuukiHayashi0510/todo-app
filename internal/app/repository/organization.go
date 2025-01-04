@@ -28,7 +28,7 @@ func (or *OrganizationRepository) Count(ctx context.Context, input *organization
 	return queries.CountSearchOrganizations(ctx, params)
 }
 
-func (or *OrganizationRepository) FindByID(ctx context.Context, id int64) (*rdb.Organization, error) {
+func (or *OrganizationRepository) FindByID(ctx context.Context, id int64) (*organization.Organization, error) {
 	queries := rdb.New(or.db)
 
 	org, err := queries.GetOrganizationByID(ctx, id)
@@ -36,10 +36,13 @@ func (or *OrganizationRepository) FindByID(ctx context.Context, id int64) (*rdb.
 		return nil, err
 	}
 
-	return &org, nil
+	return &organization.Organization{
+		OrganizationID:   org.OrganizationID,
+		OrganizationName: org.OrganizationName,
+	}, nil
 }
 
-func (or *OrganizationRepository) Search(ctx context.Context, input *organization.SearchInput) ([]rdb.Organization, error) {
+func (or *OrganizationRepository) Search(ctx context.Context, input *organization.SearchInput) ([]organization.Organization, error) {
 	queries := rdb.New(or.db)
 
 	params := rdb.SearchOrganizationsParams{
@@ -56,18 +59,43 @@ func (or *OrganizationRepository) Search(ctx context.Context, input *organizatio
 		params.Offset = 0
 	}
 
-	return queries.SearchOrganizations(ctx, params)
-}
-
-func (or *OrganizationRepository) Create(ctx context.Context, name string) (*rdb.Organization, error) {
-	queries := rdb.New(or.db)
-
-	org, err := queries.CreateOrganization(ctx, name)
+	dbOrgs, err := queries.SearchOrganizations(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	return &org, err
+	orgs := make([]organization.Organization, 0, len(dbOrgs))
+	for _, v := range dbOrgs {
+		orgs = append(orgs,
+			*organization.New(
+				v.OrganizationID,
+				v.OrganizationName,
+				v.CreatedAt,
+				v.UpdatedAt,
+				v.DeletedAt,
+			))
+	}
+
+	return orgs, nil
+}
+
+func (or *OrganizationRepository) Create(ctx context.Context, input *organization.CreateInput) (*organization.Organization, error) {
+	queries := rdb.New(or.db)
+
+	dbOrg, err := queries.CreateOrganization(ctx, input.OrganizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	org := organization.New(
+		dbOrg.OrganizationID,
+		dbOrg.OrganizationName,
+		dbOrg.CreatedAt,
+		dbOrg.UpdatedAt,
+		dbOrg.DeletedAt,
+	)
+
+	return org, nil
 }
 
 func (or *OrganizationRepository) Update(ctx context.Context, input *organization.UpdateInput) error {

@@ -13,6 +13,10 @@ type SearchOutput struct {
 	PageInfo      common.PageInfo `json:"page_info"`
 }
 
+type CreateInput struct {
+	OrganizationName string
+}
+
 type CreateOutput struct {
 	Organization Organization `json:"organization"`
 }

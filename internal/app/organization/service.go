@@ -29,13 +29,13 @@ func (s *Service) Search(ctx context.Context, input *SearchInput) (*SearchOutput
 
 	orgs := make([]Organization, 0, len(dbOrgs))
 	for _, v := range dbOrgs {
-		orgs = append(orgs, Organization{
-			OrganizationID:   v.OrganizationID,
-			OrganizationName: v.OrganizationName,
-			CreatedAt:        v.CreatedAt,
-			UpdatedAt:        v.UpdatedAt,
-			DeletedAt:        v.DeletedAt,
-		})
+		orgs = append(orgs, *New(
+			v.OrganizationID,
+			v.OrganizationName,
+			v.CreatedAt,
+			v.UpdatedAt,
+			v.DeletedAt,
+		))
 	}
 
 	return &SearchOutput{
@@ -44,20 +44,20 @@ func (s *Service) Search(ctx context.Context, input *SearchInput) (*SearchOutput
 	}, nil
 }
 
-func (s *Service) Create(ctx context.Context, name string) (*CreateOutput, error) {
-	org, err := s.repository.Create(ctx, name)
+func (s *Service) Create(ctx context.Context, input *CreateInput) (*CreateOutput, error) {
+	org, err := s.repository.Create(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
 	return &CreateOutput{
-		Organization: Organization{
-			OrganizationID:   org.OrganizationID,
-			OrganizationName: org.OrganizationName,
-			CreatedAt:        org.CreatedAt,
-			UpdatedAt:        org.UpdatedAt,
-			DeletedAt:        org.DeletedAt,
-		},
+		Organization: *New(
+			org.OrganizationID,
+			org.OrganizationName,
+			org.CreatedAt,
+			org.UpdatedAt,
+			org.DeletedAt,
+		),
 	}, nil
 }
 
@@ -86,13 +86,13 @@ func (s *Service) Update(ctx context.Context, input *UpdateInput) (*UpdateOutput
 	}
 
 	return &UpdateOutput{
-		Organization: Organization{
-			OrganizationID:   org.OrganizationID,
-			OrganizationName: org.OrganizationName,
-			CreatedAt:        org.CreatedAt,
-			UpdatedAt:        org.UpdatedAt,
-			DeletedAt:        org.DeletedAt,
-		},
+		Organization: *New(
+			org.OrganizationID,
+			org.OrganizationName,
+			org.CreatedAt,
+			org.UpdatedAt,
+			org.DeletedAt,
+		),
 	}, nil
 }
 

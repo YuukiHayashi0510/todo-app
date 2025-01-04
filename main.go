@@ -53,6 +53,9 @@ func run(addr string) (runErr error) {
 	gin.SetMode(config.AppConfig.Server.Mode)
 	r := gin.New()
 
+	// panic recovery
+	r.Use(gin.Recovery())
+
 	// ルーティング
 	router := web.NewRouter(
 		web.Handlers{

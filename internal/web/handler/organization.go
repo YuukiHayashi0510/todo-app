@@ -51,7 +51,9 @@ func (h *OrganizationHandler) Create(c *gin.Context) {
 	}
 
 	service := organization.NewService(h.repository)
-	res, err := service.Create(c, req.OrganizationName)
+	res, err := service.Create(c, &organization.CreateInput{
+		OrganizationName: req.OrganizationName,
+	})
 	if err != nil {
 		c.Set(middleware.ResponseContextKey, response.NewInternalServerError(err))
 		return
