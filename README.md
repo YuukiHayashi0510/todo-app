@@ -48,3 +48,5 @@ task migrate-down
 - [WEB フレームワーク Gin](https://gin-gonic.com/)
 - [sqlc](https://sqlc.dev/)
 - [pgx](https://github.com/jackc/pgx)
+- [golang-migrate](https://github.com/golang-migrate/migrate)
+- [Docker](https://docs.docker.com/)

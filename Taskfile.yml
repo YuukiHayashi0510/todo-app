@@ -2,6 +2,7 @@ version: "3"
 
 vars:
   DB_URL: postgres://project_user:project_pass@localhost:5432/project_db?sslmode=disable
+  MIGRATION_PATH: db/migrations
 
 tasks:
   install-tools:
@@ -22,12 +23,12 @@ tasks:
   migrate-up:
     desc: マイグレーションの実行
     cmds:
-      - migrate -database "{{.DB_URL}}" -path db/migrations up
+      - migrate -database "{{.DB_URL}}" -path {{.MIGRATION_PATH}} up
 
   migrate-down:
     desc: マイグレーションの巻き戻し
     cmds:
-      - migrate -database "{{.DB_URL}}" -path db/migrations down 1
+      - migrate -database "{{.DB_URL}}" -path {{.MIGRATION_PATH}} down 1
 
   generate:
     desc: SQLCによるコード生成
