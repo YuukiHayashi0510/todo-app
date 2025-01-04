@@ -1,0 +1,5 @@
+linters-settings:
+  govet:
+    enable-all: true
+    disable:
+      - embedchecker # embedファイルが見つからないエラーを無視
