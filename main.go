@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/YuukiHayashi0510/todo-app/config"
 	"github.com/YuukiHayashi0510/todo-app/internal/infrastructure/postgres"
@@ -13,6 +14,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	logBaseDirKey = "LOG_BASE_DIR"
+)
+
 func main() {
 	if err := run(fmt.Sprintf(":%d", config.AppConfig.Server.Port)); err != nil {
 		log.Fatalf("failed to run server: %v", err)
@@ -20,7 +25,7 @@ func main() {
 }
 
 func run(addr string) (runErr error) {
-	err := logger.Init()
+	err := logger.Init(config.AppConfig.Logging, os.Getenv(logBaseDirKey))
 	if err != nil {
 		return fmt.Errorf("failed to sync logger: %w", err)
 	}

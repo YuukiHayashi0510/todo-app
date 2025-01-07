@@ -46,7 +46,7 @@ func RequestLogger(lgr *slog.Logger) gin.HandlerFunc {
 		// レスポンス情報の付与
 		requestLogger = requestLogger.With(
 			slog.Int("status", res.HttpStatus),
-			slog.Duration("duration", time.Since(start)),
+			slog.Duration("latency", time.Since(start)),
 		)
 
 		// ステータスコードでのハンドリング
