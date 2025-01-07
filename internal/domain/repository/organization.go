@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/YuukiHayashi0510/todo-app/internal/app/organization"
+	"github.com/YuukiHayashi0510/todo-app/internal/domain/organization"
 	"github.com/YuukiHayashi0510/todo-app/internal/infrastructure/postgres"
 	"github.com/YuukiHayashi0510/todo-app/internal/persistence/rdb"
 )

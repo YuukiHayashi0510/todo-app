@@ -1,6 +1,6 @@
 package organization
 
-import "github.com/YuukiHayashi0510/todo-app/internal/app/common"
+import "github.com/YuukiHayashi0510/todo-app/internal/domain/common"
 
 type SearchInput struct {
 	Organization

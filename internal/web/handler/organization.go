@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/YuukiHayashi0510/todo-app/internal/app/organization"
-	"github.com/YuukiHayashi0510/todo-app/internal/app/repository"
+	"github.com/YuukiHayashi0510/todo-app/internal/domain/organization"
+	"github.com/YuukiHayashi0510/todo-app/internal/domain/repository"
 	"github.com/YuukiHayashi0510/todo-app/internal/infrastructure/postgres"
 	"github.com/YuukiHayashi0510/todo-app/internal/web/middleware"
 	"github.com/YuukiHayashi0510/todo-app/internal/web/request"

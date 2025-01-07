@@ -3,7 +3,7 @@ package organization
 import (
 	"time"
 
-	"github.com/YuukiHayashi0510/todo-app/internal/app/common"
+	"github.com/YuukiHayashi0510/todo-app/internal/domain/common"
 )
 
 type Organization struct {

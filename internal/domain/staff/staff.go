@@ -3,8 +3,8 @@ package staff
 import (
 	"time"
 
-	"github.com/YuukiHayashi0510/todo-app/internal/app/common"
-	"github.com/YuukiHayashi0510/todo-app/internal/app/organization"
+	"github.com/YuukiHayashi0510/todo-app/internal/domain/common"
+	"github.com/YuukiHayashi0510/todo-app/internal/domain/organization"
 )
 
 type Staff struct {

@@ -1,10 +1,10 @@
-package organization
+package staff
 
 import (
 	"context"
 	"errors"
 
-	"github.com/YuukiHayashi0510/todo-app/internal/app/common"
+	"github.com/YuukiHayashi0510/todo-app/internal/domain/common"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -22,51 +22,44 @@ func (s *Service) Search(ctx context.Context, input *SearchInput) (*SearchOutput
 		return nil, err
 	}
 
-	dbOrgs, err := s.repository.Search(ctx, input)
+	staffs, err := s.repository.Search(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	orgs := make([]Organization, 0, len(dbOrgs))
-	for _, v := range dbOrgs {
-		orgs = append(orgs, *New(
-			v.OrganizationID,
-			v.OrganizationName,
-			v.CreatedAt,
-			v.UpdatedAt,
-			v.DeletedAt,
-		))
-	}
-
 	return &SearchOutput{
-		Organizations: orgs,
-		PageInfo:      common.NewPageInfoWith(input.Page, input.PerPage, totalCount),
+		Staffs:   staffs,
+		PageInfo: common.NewPageInfoWith(input.Page, input.PerPage, totalCount),
 	}, nil
 }
 
 func (s *Service) Create(ctx context.Context, input *CreateInput) (*CreateOutput, error) {
-	org, err := s.repository.Create(ctx, input)
+	// 作成したスタッフ情報の取得
+	createStaff, err := s.repository.Create(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
+	// 作成時にJOINできないため、FindByを実行してOrganizations含めて取得
+	staff, err := s.repository.FindByID(ctx, createStaff.StaffID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrStaffNotFound
+		}
+		return nil, err
+	}
+
 	return &CreateOutput{
-		Organization: *New(
-			org.OrganizationID,
-			org.OrganizationName,
-			org.CreatedAt,
-			org.UpdatedAt,
-			org.DeletedAt,
-		),
+		Staff: *staff,
 	}, nil
 }
 
 func (s *Service) Update(ctx context.Context, input *UpdateInput) (*UpdateOutput, error) {
 	// 存在確認
-	_, err := s.repository.FindByID(ctx, input.OrganizationID)
+	_, err := s.repository.FindByID(ctx, input.StaffID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrOrganizationNotFound
+			return nil, ErrStaffNotFound
 		}
 		return nil, err
 	}
@@ -77,42 +70,36 @@ func (s *Service) Update(ctx context.Context, input *UpdateInput) (*UpdateOutput
 	}
 
 	// 更新後の値の再取得
-	org, err := s.repository.FindByID(ctx, input.OrganizationID)
+	staff, err := s.repository.FindByID(ctx, input.StaffID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrOrganizationNotFound
+			return nil, ErrStaffNotFound
 		}
 		return nil, err
 	}
 
 	return &UpdateOutput{
-		Organization: *New(
-			org.OrganizationID,
-			org.OrganizationName,
-			org.CreatedAt,
-			org.UpdatedAt,
-			org.DeletedAt,
-		),
+		Staff: *staff,
 	}, nil
 }
 
 func (s *Service) Delete(ctx context.Context, id int64) error {
 	// 存在確認
-	org, err := s.repository.FindByID(ctx, id)
+	staff, err := s.repository.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return ErrOrganizationNotFound
+			return ErrStaffNotFound
 		}
 		return err
 	}
 
 	// 既に削除されている場合
-	if org.DeletedAt != nil {
-		return ErrOrganizationHasAlreadyDeleted
+	if staff.DeletedAt != nil {
+		return ErrStaffHasAlreadyDeleted
 	}
 
 	// 削除
-	err = s.repository.Delete(ctx, org.OrganizationID)
+	err = s.repository.Delete(ctx, staff.StaffID)
 	if err != nil {
 		return err
 	}
@@ -122,21 +109,21 @@ func (s *Service) Delete(ctx context.Context, id int64) error {
 
 func (s *Service) Restore(ctx context.Context, id int64) error {
 	// 存在確認
-	org, err := s.repository.FindByID(ctx, id)
+	staff, err := s.repository.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return ErrOrganizationNotFound
+			return ErrStaffNotFound
 		}
 		return err
 	}
 
 	// 削除されていない場合
-	if org.DeletedAt == nil {
-		return ErrOrganizationIsNotDeleted
+	if staff.DeletedAt == nil {
+		return ErrStaffIsNotDeleted
 	}
 
 	// 削除
-	err = s.repository.Restore(ctx, org.OrganizationID)
+	err = s.repository.Restore(ctx, staff.StaffID)
 	if err != nil {
 		return err
 	}
