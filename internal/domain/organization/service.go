@@ -22,20 +22,9 @@ func (s *Service) Search(ctx context.Context, input *SearchInput) (*SearchOutput
 		return nil, err
 	}
 
-	dbOrgs, err := s.repository.Search(ctx, input)
+	orgs, err := s.repository.Search(ctx, input)
 	if err != nil {
 		return nil, err
-	}
-
-	orgs := make([]Organization, 0, len(dbOrgs))
-	for _, v := range dbOrgs {
-		orgs = append(orgs, *New(
-			v.OrganizationID,
-			v.OrganizationName,
-			v.CreatedAt,
-			v.UpdatedAt,
-			v.DeletedAt,
-		))
 	}
 
 	return &SearchOutput{
@@ -51,13 +40,7 @@ func (s *Service) Create(ctx context.Context, input *CreateInput) (*CreateOutput
 	}
 
 	return &CreateOutput{
-		Organization: *New(
-			org.OrganizationID,
-			org.OrganizationName,
-			org.CreatedAt,
-			org.UpdatedAt,
-			org.DeletedAt,
-		),
+		Organization: *org,
 	}, nil
 }
 
@@ -86,13 +69,7 @@ func (s *Service) Update(ctx context.Context, input *UpdateInput) (*UpdateOutput
 	}
 
 	return &UpdateOutput{
-		Organization: *New(
-			org.OrganizationID,
-			org.OrganizationName,
-			org.CreatedAt,
-			org.UpdatedAt,
-			org.DeletedAt,
-		),
+		Organization: *org,
 	}, nil
 }
 
