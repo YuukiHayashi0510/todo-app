@@ -10,7 +10,6 @@ services:
       - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db/migrations:/docker-entrypoint-initdb.d
     command: postgres -c log_destination=stderr -c log_statement=all -c log_connections=on -c log_disconnections=on
 
 volumes:
